@@ -4,12 +4,13 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler, normalize,  PowerTransformer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-from sklearn import metrics
 from scipy.spatial.distance import cdist
 import numpy as np
 from kneed import KneeLocator
 from statistics import mean
 import os 
+from utils import repo_exist, clean_user_data
+import sys
 
 def langs_to_num(row):
     row = eval(row)
@@ -17,6 +18,10 @@ def langs_to_num(row):
     return len(row)
 
 def analyse(username, repo):
+    url = f'https://api.github.com/repos/{username}/{repo}'
+    if not repo_exist(url):
+        sys.exit(0)
+
     df = pd.read_csv(f'./data/{username}/{repo}.csv', index_col=0) 
 
     # Шаг 1: Подготовка данных
@@ -79,16 +84,7 @@ def analyse(username, repo):
 
     clusters_info = pd.DataFrame(columns=df.columns)
 
-    if not os.path.exists(f'./data/{username}/web'): 
-        os.makedirs(f'./data/{username}/web')
-    else:
-        for filename in os.listdir(f'./data/{username}/web'):
-            file_path = os.path.join(f'./data/{username}/web', filename)
-            try:
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print(f'Ошибка при удалении файла {file_path}. {e}')
+    clean_user_data(f'./data/{username}/web')
 
     for cluster in np.unique(y_kmeans):
         cluster_df = df[y_kmeans == cluster]

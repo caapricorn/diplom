@@ -1,5 +1,4 @@
-/config.py
+/core/config.py
 .venv
 __pycache__
 data
-data_NixOS

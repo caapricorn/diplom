@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import datetime
 from config import token_api
 from languages import extension_to_language
+from utils import repo_exist
+import sys
 
 def get_unique_words(row):
         words = row.split(',')
@@ -11,11 +13,13 @@ def get_unique_words(row):
         unique_words_list = list(unique_words)
         return unique_words_list
 
-# парсим собранные данные и оформляем их в удобный нам формат
-# TODO проверка на ботов
 def collect(username, repo):
     git_token = token_api
     url = f'https://api.github.com/repos/{username}/{repo}'
+
+    if not repo_exist(url):
+        sys.exit(0)
+
     date_today = datetime.fromisoformat("2024-05-23T23:59:59Z")
     date_start = datetime.fromisoformat("2023-12-31T23:59:59Z")
     data_df = []
@@ -116,26 +120,6 @@ def collect(username, repo):
             if (data_df.loc[comment['user']['login'], ['LastDataActivity']] < data_of_comment).all():
                 data_df.loc[comment['user']['login'], ['LastDataActivity']] = data_of_comment
 
-    # Тк множество популярных открытых проектов с удовольствием принимают помощь изве, то очень сложно определить 
-    # основную команду или отсеить внешних помощников. Определяем уровень доступа каждого пользователя по типу действий. 
-    # 3 - write, maintain, or admin permission. 
-    # 2 - triage permission. 
-    # 1 - read permission
-
-    # Privileged Events Extended Events Common Events (write, maintain, or admin permission)
-    # added_to_project, converted_note_to_issue, deployed, deployment_environment_changed,
-    # locked, merged, moved_columns_in_project, pinned, removed_from_project,
-    # review_dismissed, transferred, unlocked, unpinned, user_blocked
-
-    # (triage permission)
-    # assigned, demilestoned, labeled, marked_as_duplicate, milestoned, unassigned, unlabeled, unmarked_as_duplicate
-
-    # (read permission)
-    # automatic_base_change_failed, automatic_base_change_succeeded, base_ref_changed, closed, comment_deleted,
-    # commented, committed, connected, convert_to_draft, created, cross_referenced, disconnected, head_ref_deleted,
-    # head_ref_force_pushed, head_ref_restored, mentioned, ready_for_review, referenced, referenced_by, renamed, 
-    # reopened, review_request_removed, review_requested, reviewed, subscribed, unsubscribed
-
     write_permission = ['added_to_project', 'converted_note_to_issue', 'deployed', 'deployment_environment_changed', 'locked', 'merged', 'moved_columns_in_project',
     'pinned', 'removed_from_project', 'review_dismissed', 'transferred', 'unlocked', 'unpinned', 'user_blocked']
     triage_permission = ['assigned', 'demilestoned', 'labeled', 'marked_as_duplicate', 'milestoned', 'unassigned', 'unlabeled', 'unmarked_as_duplicate']
@@ -200,9 +184,6 @@ def collect(username, repo):
                 data_df.loc[release['author']['login'], ['FirstDataActivity']] = data_of_release
             if (data_df.loc[release['author']['login'], ['LastDataActivity']] < data_of_release).all():
                 data_df.loc[release['author']['login'], ['LastDataActivity']] = data_of_release
-
-    # Удаляем неактивных разработчиков. Неактивными являются те, которые не совершили ни одного действия в этом году + отсутствие коммитов + бездействие 
-    # за последний месяц. Так же удаляем нулевые столбцы.
 
     data_df = data_df[(data_df.FirstDataActivity != str(date_today)) & (data_df.LastDataActivity != str(date_start))]
     data_df = data_df[data_df.CommitEvent != 0]
