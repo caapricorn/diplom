@@ -130,7 +130,7 @@ def analyse(username, repo):
 
     num_of_clusters = elbow_method(x)
 
-    clean_user_data(f'./data/{username}/web')
+    clean_user_data(f'./data/{folder_name}/web')
 
     kmeans_clustering(num_of_clusters, x, df, folder_name) 
 
