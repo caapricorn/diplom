@@ -1,0 +1,96 @@
+.container {
+    width: 80%;
+    margin: 100px auto 20px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.order-status {
+    margin-bottom: 20px;
+}
+
+.status {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status.pending {
+    background-color: #ffe0b3;
+}
+
+.status.prepared {
+    background-color: #cce5ff;
+}
+
+.status.delivered {
+    background-color: #d4edda;
+}
+
+.time {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.chart-container {
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+}
+
+.chart-container img {
+    width: 50%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.chart-container h3 {
+    text-align: center;
+}
+
+.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.full-screen img {
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+}
+
+body {
+    display: block;
+}
+
+.table {
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.table table {
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    border: 1px solid black;
+}

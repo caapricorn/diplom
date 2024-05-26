@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>GitBehavior</title>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/info.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <h1>Статус репозитория</h1>
+
+    <div class="order-status">
+        <div class="status pending">
+            <span>Загружено {{ isLoaded }}</span>
+            <span class="time">{{ loaded_time }}</span>
+        </div>
+        <div class="status prepared">
+            <span>Обработано {{ isParsed }}</span>
+            <span class="time">{{ parsed_time }}</span>
+        </div>
+        <div class="status delivered">
+            <span>Графики {{ isImage }}</span>
+            <span class="time">{{ imaged_time }}</span>
+        </div>
+    </div>
+    {% if isImage %}
+    {% for path in images %}
+        <details>
+        <summary>{{ path }}</summary>
+
+        <div class="table">
+            {{ csv_html[path] | safe }}
+        </div>
+        {% for file in images[path] %}
+        <div class="chart-container" onclick="toggleFullScreen(this)">
+            <h3>{{ file }}</h3>
+            <img src="/image?path={{ file }}">
+        </div>
+        {% endfor %}
+        </details>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        function toggleFullScreen(container) {
+            if (container.classList.contains('full-screen')) {
+                container.classList.remove('full-screen');
+            } else {
+                const allFullScreen = document.querySelectorAll('.full-screen');
+                allFullScreen.forEach((el) => el.classList.remove('full-screen'));
+                container.classList.add('full-screen');
+            }
+        }
+    </script>
+{% endblock %}

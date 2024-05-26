@@ -2,10 +2,10 @@ import requests
 from config import token_api
 import os
 
-def repo_exist(url):
+def repo_exist(url, log = lambda x: print(x)):
     r = requests.get(url, headers={"Authorization": token_api})
     if r.status_code == 404:
-        print ("Repository does not exist. Try again.")
+        log("Repository does not exist. Try again.")
         return False
     return True
 
@@ -14,11 +14,12 @@ def clean_user_data(path):
         print(f'Создаем {path}...')
         os.makedirs(path)
     else:
-        for filename in os.listdir(path):
-            print(f'Очищаем {path}...')
-            file_path = os.path.join(path, filename)
-            try:
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print(f'Ошибка при удалении файла {file_path}. {e}')
+        try:
+            for root, dirs, files in os.walk(path, topdown=False):
+                for file in files:
+                    os.remove(os.path.join(root, file))
+                for directory in dirs:
+                    os.rmdir(os.path.join(root, directory))
+            os.rmdir(path)
+        except Exception as e:
+                print(f'Ошибка при удалении {path}. {e}')

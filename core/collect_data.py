@@ -25,8 +25,8 @@ def get_unique_words(row):
         unique_words_list = list(unique_words)
         return unique_words_list
 
-def contributors(data_df, folder_name):
-    print("Собираем данные об участниках...")
+def contributors(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные об участниках...")
     index_login = []
     with open(f'./data/{folder_name}/json/contributors.json', "r", encoding="utf-8") as f:
         contributors = json.load(f)
@@ -36,8 +36,8 @@ def contributors(data_df, folder_name):
     data_df = pd.DataFrame(data_df, index=index_login)
     return data_df
 
-def commits(data_df, folder_name):
-    print("Собираем данные о коммитах...")
+def commits(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о коммитах...")
     with open(f'./data/{folder_name}/json/commits.json', "r", encoding="utf-8") as f:
         commits = json.load(f)
     for commit in commits:
@@ -66,8 +66,8 @@ def commits(data_df, folder_name):
     data_df['Languages'] = data_df['Languages'].apply(get_unique_words)
     return data_df
 
-def commits_comments(data_df, folder_name):
-    print("Собираем данные о комментариях в коммитах...")
+def commits_comments(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о комментариях в коммитах...")
     with open(f'./data/{folder_name}/json/commits_comments.json', "r", encoding="utf-8") as f:
         comments = json.load(f)
     for comment in comments:
@@ -80,8 +80,8 @@ def commits_comments(data_df, folder_name):
                 data_df.loc[comment['user']['login'], ['LastDataActivity']] = data_of_comment
     return data_df
 
-def events(data_df, folder_name):
-    print("Собираем данные о действиях разработчиков...")
+def events(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о действиях разработчиков...")
     with open(f'./data/{folder_name}/json/events.json', "r", encoding="utf-8") as f:
         events = json.load(f)
     for event in events:
@@ -96,8 +96,8 @@ def events(data_df, folder_name):
                 data_df.loc[event['actor']['login'], ['LastDataActivity']] = data_of_event
     return data_df
 
-def issues(data_df, folder_name):
-    print("Собираем данные об issues...")
+def issues(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные об issues...")
     with open(f'./data/{folder_name}/json/issues.json', "r", encoding="utf-8") as f:
         issues = json.load(f)
     for issue in issues:
@@ -110,8 +110,8 @@ def issues(data_df, folder_name):
                 data_df.loc[issue['user']['login'], ['LastDataActivity']] = data_of_issue
     return data_df
 
-def issues_comments(data_df, folder_name):
-    print("Собираем данные о комментариях в issues...")
+def issues_comments(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о комментариях в issues...")
     with open(f'./data/{folder_name}/json/issues_comments.json', "r", encoding="utf-8") as f:
         comments = json.load(f)
     for comment in comments:
@@ -124,8 +124,8 @@ def issues_comments(data_df, folder_name):
                 data_df.loc[comment['user']['login'], ['LastDataActivity']] = data_of_comment
     return data_df
 
-def issues_events(data_df, folder_name):
-    print("Собираем данные о действиях в issues...")
+def issues_events(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о действиях в issues...")
     with open(f'./data/{folder_name}/json/issues_events.json', "r", encoding="utf-8") as f:
         events = json.load(f)
     for event in events:
@@ -147,8 +147,8 @@ def issues_events(data_df, folder_name):
                 data_df.loc[login, ['PermissionRole']] = 3
     return data_df
 
-def pulls(data_df, folder_name):
-    print("Собираем данные о pull requests...")
+def pulls(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о pull requests...")
     with open(f'./data/{folder_name}/json/pulls.json', "r", encoding="utf-8") as f:
         pulls = json.load(f)
     for pull in pulls:
@@ -161,8 +161,8 @@ def pulls(data_df, folder_name):
                 data_df.loc[pull['user']['login'], ['LastDataActivity']] = data_of_pull
     return data_df
 
-def releases(data_df, folder_name):
-    print("Собираем данные о релизах...")
+def releases(data_df, folder_name, log = lambda x: print(x)):
+    log("Собираем данные о релизах...")
     with open(f'./data/{folder_name}/json/releases.json', "r", encoding="utf-8") as f:
         releases = json.load(f)
     for release in releases:
@@ -175,16 +175,16 @@ def releases(data_df, folder_name):
                 data_df.loc[release['author']['login'], ['LastDataActivity']] = data_of_release
     return data_df
 
-def collect(username, repo):
+def collect(username, repo, log = lambda x: print(x)):
     url = f'https://api.github.com/repos/{username}/{repo}'
     folder_name = f'{username}-{repo}'
 
-    if not repo_exist(url):
+    if not repo_exist(url, log):
         sys.exit(0)
 
     clean_user_data(f'./data/{folder_name}/csv')
     data_df = []
-    data_df = contributors(data_df, folder_name)
+    data_df = contributors(data_df, folder_name, log)
 
     data_df['CommitEvent'] = 0
     data_df['Additions'] = 0
@@ -206,21 +206,21 @@ def collect(username, repo):
     data_df['CreateIssueEvent'] = 0
     data_df['PermissionRole'] = 0
 
-    data_df = commits(data_df, folder_name)
+    data_df = commits(data_df, folder_name, log)
 
-    data_df = commits_comments(data_df, folder_name)
+    data_df = commits_comments(data_df, folder_name, log)
 
-    data_df = events(data_df, folder_name)
+    data_df = events(data_df, folder_name, log)
 
-    data_df = issues(data_df, folder_name)
+    data_df = issues(data_df, folder_name, log)
 
-    data_df = issues_comments(data_df, folder_name)
+    data_df = issues_comments(data_df, folder_name, log)
 
-    data_df = issues_events(data_df, folder_name)
+    data_df = issues_events(data_df, folder_name, log)
 
-    data_df = pulls(data_df, folder_name)
+    data_df = pulls(data_df, folder_name, log)
 
-    data_df = releases(data_df, folder_name)
+    data_df = releases(data_df, folder_name, log)
 
     data_df = data_df[(data_df.FirstDataActivity != str(date_today)) & (data_df.LastDataActivity != str(date_start))]
     data_df = data_df[data_df.CommitEvent != 0]
@@ -230,5 +230,5 @@ def collect(username, repo):
     data_df['Add-Del'] = (data_df['Additions'] - data_df['Deletions'])
     data_df = data_df.drop(['Additions', 'Deletions'], axis=1)
 
-    print("Сохранение...")
+    log("Сохранение...")
     data_df.to_csv(f'./data/{folder_name}/csv/data.csv', index=True)

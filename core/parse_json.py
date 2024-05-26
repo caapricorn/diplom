@@ -8,8 +8,8 @@ import os
 
 is_date_limit = datetime.fromisoformat("2023-12-31T23:59:59Z")
 
-def contributors(folder_name, url):
-    print("Скачиваем данные об участниках...")
+def contributors(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные об участниках...")
     url_contributors = url + f'/contributors?per_page=100'
     r = requests.get(url_contributors, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -37,8 +37,8 @@ def contributors(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def commits(folder_name, url):
-    print("Скачиваем данные о коммитах...")
+def commits(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о коммитах...")
     url_commit = url + f'/commits?per_page=100'
     r = requests.get(url_commit, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -66,8 +66,8 @@ def commits(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def comments(folder_name, url):
-    print("Скачиваем данные о комментариях в коммитах...")
+def comments(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о комментариях в коммитах...")
     url_commit_comment = url + f'/comments?per_page=100'
     r = requests.get(url_commit_comment, headers={"Authorization": token_api})
     is_limit = False
@@ -77,7 +77,8 @@ def comments(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write('[')
 
-    r = requests.get(r.links['last']['url'], headers={"Authorization": token_api})
+    if 'last' in r.links.keys():
+        r = requests.get(r.links['last']['url'], headers={"Authorization": token_api})
     data_json = json.loads(r.text)
 
     while 'prev' in r.links.keys() and not is_limit:
@@ -97,8 +98,8 @@ def comments(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def issues(folder_name, url):
-    print("Скачиваем данные об issues...")
+def issues(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные об issues...")
     url_issues = url + f'/issues?per_page=100'
     r = requests.get(url_issues, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -126,8 +127,8 @@ def issues(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def issues_comments(folder_name, url):
-    print("Скачиваем данные о комментариях в issues...")
+def issues_comments(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о комментариях в issues...")
     url_issues_comments = url + f'/issues/comments?since="2023-12-31T23:59:59Z"&&per_page=100'
     r = requests.get(url_issues_comments, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -151,8 +152,8 @@ def issues_comments(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def issues_events(folder_name, url):
-    print("Скачиваем данные о issues events...")
+def issues_events(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о issues events...")
     url_issues_events = url + f'/issues/events?per_page=100'
     r = requests.get(url_issues_events, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -180,8 +181,8 @@ def issues_events(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def pulls(folder_name, url):
-    print("Скачиваем данные о pull requests...")
+def pulls(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о pull requests...")
     url_pulls = url + f'/pulls?state=all&per_page=100'
     r = requests.get(url_pulls, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -209,8 +210,8 @@ def pulls(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def releases(folder_name, url):
-    print("Скачиваем данные о releases...")
+def releases(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о releases...")
     url_releases = url + f'/releases?per_page=100'
     r = requests.get(url_releases, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -238,8 +239,8 @@ def releases(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def events(folder_name, url):
-    print("Скачиваем данные о events...")
+def events(folder_name, url, log = lambda x: print(x)):
+    log("Скачиваем данные о events...")
     url_events = url + f'/events?per_page=100'
     r = requests.get(url_events, headers={"Authorization": token_api})
     data_json = json.loads(r.text)
@@ -267,30 +268,30 @@ def events(folder_name, url):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(']')
 
-def parse(username, repo):
+def parse(username, repo, log = lambda x: print(x)):
     url = f'https://api.github.com/repos/{username}/{repo}'
     folder_name = f'{username}-{repo}'
 
-    if not repo_exist(url):
+    if not repo_exist(url, log):
         sys.exit(0)
 
     clean_user_data(f'./data/{folder_name}')
     os.makedirs(f'./data/{folder_name}/json')
 
-    contributors(folder_name, url)
+    contributors(folder_name, url, log)
     
-    commits(folder_name, url)
+    commits(folder_name, url, log)
     
-    comments(folder_name, url)
+    comments(folder_name, url, log)
 
-    issues(folder_name, url)
+    issues(folder_name, url, log)
     
-    issues_comments(folder_name, url)
+    issues_comments(folder_name, url, log)
 
-    issues_events(folder_name, url)
+    issues_events(folder_name, url, log)
     
-    pulls(folder_name, url)
+    pulls(folder_name, url, log)
 
-    releases(folder_name, url)   
+    releases(folder_name, url, log)  
 
-    events(folder_name, url)
+    events(folder_name, url, log)

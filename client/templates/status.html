@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>GitBehavior</title>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/status.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="header" id="header">
+        <h1 id="task-stat">Статус задачи: {{ state }}</h1>
+    </div>
+    <div class="content">
+        <div class="field">
+            <label for="mode">Режим:</label>
+            <div class="value" id="mode">{{ type }}</div>
+        </div>
+        <div class="field">
+            <label for="organizer">Владелец:</label>
+            <div class="value" id="organizer">{{ owner }} </div>
+        </div>
+        <div class="field">
+            <label for="name">Репозиторий:</label>
+            <div class="value" id="name">{{ repo }}</div>
+        </div>
+        <div class="info-message" id="info-message">
+            {{ result }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        var timerID = null;
+
+        function checkTaskStatus(taskId) {
+            debugger;
+            fetch(`/status_job/${taskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    var info = document.getElementById('info-message')
+                    info.textContent = data.result;
+                    document.getElementById('task-stat').textContent = data.state;
+
+                    if (data.state === 'FAILURE') {
+                        document.getElementById('header').setAttribute('style', 'background-color: red');
+                        info.textContent = 'Ошибка' + data.info;
+                    }
+                    if (data.state === 'SUCCESS') {
+                        document.getElementById('header').setAttribute('style', 'background-color: #4CAF50');
+                        clearTimeout(timerID);
+                    }
+                });
+        }
+
+        timerID = setInterval(() => {
+            checkTaskStatus("{{ id }}");
+        }, 300);
+    </script>
+{% endblock %}

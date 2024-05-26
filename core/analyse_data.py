@@ -114,10 +114,10 @@ def spectral_clustering(x, df, folder_name):
     labels = spectral.fit_predict(x)
     result_of_clustering(df, labels, 'Spectral Clustering', folder_name)
 
-def analyse(username, repo):
+def analyse(username, repo, log = lambda x: print(x)):
     url = f'https://api.github.com/repos/{username}/{repo}'
     folder_name = f'{username}-{repo}'
-    if not repo_exist(url):
+    if not repo_exist(url, log):
         sys.exit(0)
 
     df = pd.read_csv(f'./data/{folder_name}/csv/data.csv', index_col=0) 
