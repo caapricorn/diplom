@@ -20,6 +20,5 @@ def clean_user_data(path):
                     os.remove(os.path.join(root, file))
                 for directory in dirs:
                     os.rmdir(os.path.join(root, directory))
-            os.rmdir(path)
         except Exception as e:
                 print(f'Ошибка при удалении {path}. {e}')
