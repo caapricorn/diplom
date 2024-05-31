@@ -15,16 +15,22 @@
 
     <div class="order-status">
         <div class="status pending">
-            <span>Загружено {{ isLoaded }}</span>
+            <span>{% if isLoaded %}Загружено{% else %}Не загружено{% endif %}</span>
+            {% if loaded_time %}
             <span class="time">{{ loaded_time }}</span>
+            {% endif %}
         </div>
         <div class="status prepared">
-            <span>Обработано {{ isParsed }}</span>
+            <span>{% if isParsed %}Обработано{% else %}Не обработано{% endif %}</span>
+            {% if parsed_time %}
             <span class="time">{{ parsed_time }}</span>
+            {% endif %}
         </div>
         <div class="status delivered">
-            <span>Графики {{ isImage }}</span>
+            <span>Графики {% if isImage %}созданы{% else %}не созданы{% endif %}</span>
+            {% if imaged_time %}
             <span class="time">{{ imaged_time }}</span>
+            {% endif %}
         </div>
     </div>
     {% if isImage %}
@@ -37,7 +43,6 @@
         </div>
         {% for file in images[path] %}
         <div class="chart-container" onclick="toggleFullScreen(this)">
-            <h3>{{ file }}</h3>
             <img src="/image?path={{ file }}">
         </div>
         {% endfor %}

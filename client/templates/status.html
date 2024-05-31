@@ -12,7 +12,7 @@
 {% block content %}
 <div class="container">
     <div class="header" id="header">
-        <h1 id="task-stat">Статус задачи: {{ state }}</h1>
+        <h1 id="task-stat"> </h1>
     </div>
     <div class="content">
         <div class="field">
@@ -51,7 +51,7 @@
                         document.getElementById('header').setAttribute('style', 'background-color: red');
                         info.textContent = 'Ошибка' + data.info;
                     }
-                    if (data.state === 'SUCCESS') {
+                    if (data.state === 'ГОТОВО') {
                         document.getElementById('header').setAttribute('style', 'background-color: #4CAF50');
                         clearTimeout(timerID);
                     }

@@ -84,8 +84,14 @@ def start_task():
 @app.route('/status_job/<task_id>', methods=['GET'])
 def check_task(task_id):
     task = parse_job.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        state = 'ЗАГРУЗКА'
+    elif task.state == 'SUCCESS':
+        state = 'ГОТОВО'
+    else:
+        state = task.state
     return jsonify({
-        'state': task.state,
+        'state': state,
         'result': task.result,
     })
 

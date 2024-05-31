@@ -99,20 +99,20 @@ def kmeans_clustering(num_of_clusters, x, df, folder_name):
     kmeans = KMeans(n_clusters=num_of_clusters, \
 				init='k-means++', random_state=42)
     y_kmeans = kmeans.fit_predict(x)
-    result_of_clustering(df, y_kmeans, 'Kmeans', folder_name)
+    result_of_clustering(df, y_kmeans, 'K-means кластеризация', folder_name)
 
 def hierarchy_clustering(x, df, folder_name):
     linked = linkage(x, method='ward')
     num_of_clusters = silhouette_analysis(x, 'hierarchy')
     cluster_labels = fcluster(linked, num_of_clusters, criterion='maxclust')
-    result_of_clustering(df, cluster_labels, 'Hierarchy Clustering', folder_name)
+    result_of_clustering(df, cluster_labels, 'Иерархическая кластеризация', folder_name)
 
 def spectral_clustering(x, df, folder_name):
     num_of_clusters = silhouette_analysis(x, 'spectral')
     n_neighbors = min(num_of_clusters + 1, len(x) - 1)
     spectral = SpectralClustering(n_clusters=num_of_clusters, affinity='nearest_neighbors', n_neighbors=n_neighbors, assign_labels='kmeans')
     labels = spectral.fit_predict(x)
-    result_of_clustering(df, labels, 'Spectral Clustering', folder_name)
+    result_of_clustering(df, labels, 'Спектральная кластеризация', folder_name)
 
 def analyse(username, repo, log = lambda x: print(x)):
     url = f'https://api.github.com/repos/{username}/{repo}'
