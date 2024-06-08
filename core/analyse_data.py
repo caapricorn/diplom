@@ -1,5 +1,6 @@
 import pandas as pd 
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler, normalize,  PowerTransformer
 from sklearn.decomposition import PCA
@@ -76,21 +77,31 @@ def silhouette_analysis(x, key):
 def result_of_clustering(df, clusters, method, folder_name):
     clusters_info = pd.DataFrame(columns=df.columns)
     clean_user_data(f'./data/{folder_name}/web/{method}')
+
+    color_list = plt.cm.Paired(np.linspace(0, 1, 100))
+    new_cmap = colors.ListedColormap(color_list)
+
     for cluster in np.unique(clusters):
         cluster_df = df[clusters == cluster]
         
-        sns.set(style='white')
-        cluster_df.set_index(cluster_df.index).plot(kind='bar', stacked= True)
+        sns.set(style='white', color_codes=True)
+        _, ax = plt.subplots()
+
+        ax.set_prop_cycle(color=new_cmap(np.arange(100)))
+
+        cluster_df.set_index(cluster_df.index).plot(kind='bar', stacked=True, ax=ax, colormap=plt.cm.get_cmap('Spectral'))
+
         cluster_info = {'Cluster': cluster}
         for col in df.columns:
-            cluster_info[col] = str(min(cluster_df[col])) + ' - ' + str(max(cluster_df[col]))
+            cluster_info[col] = f"{min(cluster_df[col])} - {max(cluster_df[col])}"
         
         clusters_info.loc[len(clusters_info)] = cluster_info
 
         plt.ylabel('Number of actions')
         plt.xlabel('Login of programmer')
         plt.title(f'Cluster {cluster}')
-        plt.savefig(f'./data/{folder_name}/web/{method}/cluster_{cluster}.png')
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
+        plt.savefig(f'./data/{folder_name}/web/{method}/cluster_{cluster}.png', bbox_inches='tight')
         plt.close()
     
     clusters_info.to_csv(f'./data/{folder_name}/web/{method}/clusters_info.csv', index=False)
@@ -123,7 +134,6 @@ def accuracy(x, labels, method, folder_name):
 
     def dunn_index(X, labels):
         unique_labels = np.unique(labels)
-        # distances = cdist(X, X)
         intra_dists = []
         inter_dists = []
         
