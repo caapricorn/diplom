@@ -91,6 +91,10 @@ body {
     border-collapse: collapse;
 }
 
+table + table {
+    margin-top: 15px;
+}
+
 .table th, .table td {
     border: 1px solid black;
 }

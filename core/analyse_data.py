@@ -4,7 +4,7 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler, normalize,  PowerTransformer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import cdist
 import numpy as np
@@ -100,12 +100,14 @@ def kmeans_clustering(num_of_clusters, x, df, folder_name):
 				init='k-means++', random_state=42)
     y_kmeans = kmeans.fit_predict(x)
     result_of_clustering(df, y_kmeans, 'K-means кластеризация', folder_name)
+    accuracy(x, y_kmeans, 'K-means кластеризация', folder_name)
 
 def hierarchy_clustering(x, df, folder_name):
     linked = linkage(x, method='ward')
     num_of_clusters = silhouette_analysis(x, 'hierarchy')
     cluster_labels = fcluster(linked, num_of_clusters, criterion='maxclust')
     result_of_clustering(df, cluster_labels, 'Иерархическая кластеризация', folder_name)
+    accuracy(x, cluster_labels, 'Иерархическая кластеризация', folder_name)
 
 def spectral_clustering(x, df, folder_name):
     num_of_clusters = silhouette_analysis(x, 'spectral')
@@ -113,6 +115,35 @@ def spectral_clustering(x, df, folder_name):
     spectral = SpectralClustering(n_clusters=num_of_clusters, affinity='nearest_neighbors', n_neighbors=n_neighbors, assign_labels='kmeans')
     labels = spectral.fit_predict(x)
     result_of_clustering(df, labels, 'Спектральная кластеризация', folder_name)
+    accuracy(x, labels, 'Спектральная кластеризация', folder_name)
+
+def accuracy(x, labels, method, folder_name):
+    davies_bouldin = davies_bouldin_score(x, labels)
+    calinski_harabasz = calinski_harabasz_score(x, labels)
+
+    def dunn_index(X, labels):
+        unique_labels = np.unique(labels)
+        # distances = cdist(X, X)
+        intra_dists = []
+        inter_dists = []
+        
+        for label in unique_labels:
+            cluster_points = X[labels == label]
+            if len(cluster_points) > 1:
+                intra_dists.append(np.max(cdist(cluster_points, cluster_points)))
+        
+        for i in range(len(unique_labels)):
+            for j in range(i + 1, len(unique_labels)):
+                inter_dists.append(np.min(cdist(X[labels == unique_labels[i]], X[labels == unique_labels[j]])))
+        
+        if intra_dists and inter_dists:
+            return np.min(inter_dists) / np.max(intra_dists)
+        return 0
+    
+    dunn = dunn_index(x, labels)
+    accuracy_df = {'Индекс Дэвиса-Болдина': [davies_bouldin], 'Индекс Калински-Харабаза': [calinski_harabasz], 'Индекс Данна': [dunn]}
+    accuracy_df = pd.DataFrame(data=accuracy_df)
+    accuracy_df.to_csv(f'./data/{folder_name}/web/{method}/accuracy_info.csv', index=False)
 
 def analyse(username, repo, log = lambda x: print(x)):
     url = f'https://api.github.com/repos/{username}/{repo}'

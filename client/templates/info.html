@@ -39,7 +39,9 @@
         <summary>{{ path }}</summary>
 
         <div class="table">
-            {{ csv_html[path] | safe }}
+            {% for table in csv_html[path] %}
+                {{ csv_html[path][table] | safe }}
+            {% endfor %}
         </div>
         {% for file in images[path] %}
         <div class="chart-container" onclick="toggleFullScreen(this)">

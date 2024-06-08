@@ -107,14 +107,16 @@ def current_status(owner, repo):
     if isImage:
         images = find_png_images(f'{path}/web')
         csvs = find_png_images(f'{path}/web', '.csv')
-    
+
     csv_html = {}
     for csv in csvs:
-        data = pd.read_csv(f'.{csvs[csv][0]}')
-        table_data = data.values.tolist()
-        html_table = tabulate(table_data, headers=data.columns, tablefmt='html')
-        csv_html[csv] = html_table
-        print(html_table)
+        csv_html[csv] = {}
+        for tbl in csvs[csv]:
+            data = pd.read_csv(f'.{tbl}')
+            table_data = data.values.tolist()
+            html_table = tabulate(table_data, headers=data.columns, tablefmt='html')
+            csv_html[csv][tbl] = html_table
+            print(html_table)
 
 
     return render_template('info.html', owner=owner, repo=repo, isLoaded=isLoaded, loaded_time=loaded_time, isParsed=isParsed, parsed_time=parsed_time, isImage=isImage, imaged_time=imaged_time, images=images, csv_html=csv_html) 
