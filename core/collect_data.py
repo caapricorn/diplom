@@ -13,6 +13,12 @@ def get_unique_words(row):
         unique_words_list = list(unique_words)
         return unique_words_list
 
+def langs_to_num(row):
+    if isinstance(row, str):
+        row = eval(row)
+    row = [i for i in row if i!='']
+    return len(row)
+
 def contributors(data_df, folder_name, log = lambda x: print(x)):
     log("Собираем данные об участниках...")
     index_login = []
@@ -223,6 +229,11 @@ def collect(username, repo, log = lambda x: print(x)):
 
     data_df['Add-Del'] = (data_df['Additions'] - data_df['Deletions'])
     data_df = data_df.drop(['Additions', 'Deletions'], axis=1)
+
+    data_df['Languages'] = data_df['Languages'].apply(langs_to_num)
+
+    data_df = data_df.drop(['FirstDataActivity'], axis=1)
+    data_df = data_df.drop(['LastDataActivity'], axis=1)
 
     log("Сохранение...")
     data_df.to_csv(f'./data/{folder_name}/csv/data.csv', index=True)

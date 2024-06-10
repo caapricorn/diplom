@@ -14,11 +14,6 @@ from statistics import mean
 from utils import repo_exist, clean_user_data
 import sys
 
-def langs_to_num(row):
-    row = eval(row)
-    row = [i for a,i in enumerate(row) if i!='']
-    return len(row)
-
 def normalization(df):
     scaling=StandardScaler()
     scaling.fit(df)
@@ -162,10 +157,6 @@ def analyse(username, repo, log = lambda x: print(x)):
         sys.exit(0)
 
     df = pd.read_csv(f'./data/{folder_name}/csv/data.csv', index_col=0) 
-
-    df['Languages'] = df['Languages'].apply(langs_to_num)
-    df = df.drop(['FirstDataActivity'], axis=1)
-    df = df.drop(['LastDataActivity'], axis=1)
 
     x = normalization(df)
 
