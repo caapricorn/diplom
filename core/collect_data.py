@@ -4,12 +4,8 @@ import pandas as pd
 from datetime import datetime
 from config import token_api
 from dictionaries import extension_to_language, write_permission, triage_permission, read_permission
-from utils import repo_exist, clean_user_data
+from utils import repo_exist, clean_user_data, get_creation_date, minus_one_month
 import sys
-
-date_today = datetime.fromisoformat("2024-05-26T23:59:59Z")
-date_start = datetime.fromisoformat("2023-12-31T23:59:59Z")
-data_df = []
 
 def get_unique_words(row):
         words = row.split(',')
@@ -176,13 +172,19 @@ def collect(username, repo, log = lambda x: print(x)):
 
     clean_user_data(f'./data/{folder_name}/csv')
     data_df = []
+
+    date_data = get_creation_date(f'./data/{folder_name}/json/releases.json')
+    date_last_activity = minus_one_month(date_data)
+    date_data = datetime.fromisoformat(date_data)
+    date_start = datetime.fromisoformat("2023-12-31T23:59:59Z")
+
     data_df = contributors(data_df, folder_name, log)
 
     data_df['CommitEvent'] = 0
     data_df['Additions'] = 0
     data_df['Deletions'] = 0
     data_df['Languages'] = ''
-    data_df['FirstDataActivity'] = date_today
+    data_df['FirstDataActivity'] = date_data
     data_df['LastDataActivity'] = date_start
     data_df['CommitCommentEvent'] = 0
     data_df['CreateEvent'] = 0
@@ -214,9 +216,9 @@ def collect(username, repo, log = lambda x: print(x)):
 
     data_df = releases(data_df, folder_name, log)
 
-    data_df = data_df[(data_df.FirstDataActivity != str(date_today)) & (data_df.LastDataActivity != str(date_start))]
+    data_df = data_df[(data_df.FirstDataActivity != str(date_data)) & (data_df.LastDataActivity != str(date_start))]
     data_df = data_df[data_df.CommitEvent != 0]
-    data_df = data_df[data_df.LastDataActivity >= datetime.fromisoformat('2024-04-23 23:59:59+00:00')]
+    data_df = data_df[data_df.LastDataActivity >= datetime.fromisoformat(date_last_activity)]
     data_df = data_df.loc[:, (data_df != 0).any(axis=0)]
 
     data_df['Add-Del'] = (data_df['Additions'] - data_df['Deletions'])
