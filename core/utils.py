@@ -3,6 +3,7 @@ from config import token_api
 import os
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import time
 
 def repo_exist(url, log = lambda x: print(x)):
     r = requests.get(url, headers={"Authorization": token_api})
@@ -31,8 +32,25 @@ def get_creation_date(file_path):
     date_data = creation_datetime.isoformat() + 'Z'
     return date_data
 
-def minus_one_month(date_str):
+def minus_month(date_str, count):
     date_obj = datetime.fromisoformat(date_str.replace('Z', ''))
-    new_date_obj = date_obj - relativedelta(months=1)
+    new_date_obj = date_obj - relativedelta(months=count)
     new_date_str = new_date_obj.isoformat() + 'Z'
     return new_date_str
+
+def make_request_with_retries(url):
+    attempt = 0
+    initial_delay=1
+    delay = initial_delay
+    max_retries = 100
+    backoff_factor=2
+
+    while attempt < max_retries:
+        response = requests.get(url, headers={"Authorization": token_api})
+
+        if 200 <= response.status_code < 300:
+            return response
+        else:
+            time.sleep(delay)
+            delay *= backoff_factor
+            attempt += 1

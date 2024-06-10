@@ -1,10 +1,8 @@
-import requests
 import json
 import pandas as pd
 from datetime import datetime
-from config import token_api
 from dictionaries import extension_to_language, write_permission, triage_permission, read_permission
-from utils import repo_exist, clean_user_data, get_creation_date, minus_one_month
+from utils import repo_exist, clean_user_data, get_creation_date, minus_month, make_request_with_retries
 import sys
 from sklearn.preprocessing import MultiLabelBinarizer
 
@@ -43,7 +41,7 @@ def commits(data_df, folder_name, log = lambda x: print(x)):
             if (data_df.loc[login, ['LastDataActivity']] < data_of_commit).all():
                 data_df.loc[login, ['LastDataActivity']] = data_of_commit
             url_commit = commit['url']
-            r = requests.get(url_commit, headers={"Authorization": token_api})
+            r = make_request_with_retries(url_commit)
             data_json = json.loads(r.text)
             data_df.loc[login, ['Additions']] += data_json['stats']['additions']
             data_df.loc[login, ['Deletions']] += data_json['stats']['deletions']
@@ -175,9 +173,10 @@ def collect(username, repo, log = lambda x: print(x)):
     data_df = []
 
     date_data = get_creation_date(f'./data/{folder_name}/json/releases.json')
-    date_last_activity = minus_one_month(date_data)
+    date_last_activity = minus_month(date_data, 1)
+    date_start = minus_month(date_data, 3)
     date_data = datetime.fromisoformat(date_data)
-    date_start = datetime.fromisoformat("2023-12-31T23:59:59Z")
+    date_start = datetime.fromisoformat(date_start)
 
     data_df = contributors(data_df, folder_name, log)
 
