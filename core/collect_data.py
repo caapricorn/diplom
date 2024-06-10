@@ -3,21 +3,13 @@ import json
 import pandas as pd
 from datetime import datetime
 from config import token_api
-from languages import extension_to_language
+from dictionaries import extension_to_language, write_permission, triage_permission, read_permission
 from utils import repo_exist, clean_user_data
 import sys
 
-# date_today = datetime.now().isoformat()
 date_today = datetime.fromisoformat("2024-05-26T23:59:59Z")
 date_start = datetime.fromisoformat("2023-12-31T23:59:59Z")
 data_df = []
-write_permission = ['added_to_project', 'converted_note_to_issue', 'deployed', 'deployment_environment_changed', 'locked', 'merged', 'moved_columns_in_project',
-    'pinned', 'removed_from_project', 'review_dismissed', 'transferred', 'unlocked', 'unpinned', 'user_blocked']
-triage_permission = ['assigned', 'demilestoned', 'labeled', 'marked_as_duplicate', 'milestoned', 'unassigned', 'unlabeled', 'unmarked_as_duplicate']
-read_permission = ['automatic_base_change_failed', 'automatic_base_change_succeeded', 'base_ref_changed', 'closed', 'comment_deleted',
-    'commented', 'committed', 'connected', 'convert_to_draft', 'created', 'cross_referenced', 'disconnected', 'head_ref_deleted', 
-    'head_ref_force_pushed', 'head_ref_restored', 'mentioned', 'ready_for_review', 'referenced', 'referenced_by', 'renamed', 'reopened',
-    'review_request_removed', 'review_requested', 'reviewed', 'subscribed', 'unsubscribed']
 
 def get_unique_words(row):
         words = row.split(',')
