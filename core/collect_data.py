@@ -6,18 +6,13 @@ from config import token_api
 from dictionaries import extension_to_language, write_permission, triage_permission, read_permission
 from utils import repo_exist, clean_user_data, get_creation_date, minus_one_month
 import sys
+from sklearn.preprocessing import MultiLabelBinarizer
 
 def get_unique_words(row):
         words = row.split(',')
         unique_words = set(words)
         unique_words_list = list(unique_words)
         return unique_words_list
-
-def langs_to_num(row):
-    if isinstance(row, str):
-        row = eval(row)
-    row = [i for i in row if i!='']
-    return len(row)
 
 def contributors(data_df, folder_name, log = lambda x: print(x)):
     log("Собираем данные об участниках...")
@@ -230,10 +225,14 @@ def collect(username, repo, log = lambda x: print(x)):
     data_df['Add-Del'] = (data_df['Additions'] - data_df['Deletions'])
     data_df = data_df.drop(['Additions', 'Deletions'], axis=1)
 
-    data_df['Languages'] = data_df['Languages'].apply(langs_to_num)
-
     data_df = data_df.drop(['FirstDataActivity'], axis=1)
     data_df = data_df.drop(['LastDataActivity'], axis=1)
+
+    data_df['Languages'] = data_df['Languages'].apply(lambda x: [i for i in x if i])
+    mlb = MultiLabelBinarizer()
+    langs_encoded = mlb.fit_transform(data_df['Languages'])
+    encoded_df = pd.DataFrame(langs_encoded, columns=mlb.classes_, index=data_df.index)
+    data_df = pd.concat([data_df.drop(columns=['Languages']), encoded_df], axis=1)
 
     log("Сохранение...")
     data_df.to_csv(f'./data/{folder_name}/csv/data.csv', index=True)
