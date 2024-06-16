@@ -92,9 +92,9 @@ def result_of_clustering(df, clusters, method, folder_name):
         
         clusters_info.loc[len(clusters_info)] = cluster_info
 
-        plt.ylabel('Number of actions')
-        plt.xlabel('Login of programmer')
-        plt.title(f'Cluster {cluster}')
+        plt.ylabel('Количество действий')
+        plt.xlabel('Логин пользователя')
+        plt.title(f'Кластер {cluster}')
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
         plt.savefig(f'./data/{folder_name}/web/{method}/cluster_{cluster}.png', bbox_inches='tight')
         plt.close()
@@ -146,6 +146,9 @@ def accuracy(x, labels, method, folder_name):
         return 0
     
     dunn = dunn_index(x, labels)
+    davies_bouldin = str(round(davies_bouldin, 2)).replace(".", ",")
+    calinski_harabasz = str(round(calinski_harabasz, 2)).replace(".", ",")
+    dunn = str(round(dunn, 2)).replace(".", ",")
     accuracy_df = {'Индекс Дэвиса-Болдина': [davies_bouldin], 'Индекс Калински-Харабаза': [calinski_harabasz], 'Индекс Данна': [dunn]}
     accuracy_df = pd.DataFrame(data=accuracy_df)
     accuracy_df.to_csv(f'./data/{folder_name}/web/{method}/accuracy_info.csv', index=False)
